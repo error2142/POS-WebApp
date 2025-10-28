@@ -1,0 +1,76 @@
+﻿@{
+    ViewData["Title"] = "今日訂單清單";
+    var orders = ViewBag.TodayOrders as List<WebApplication1.Controllers.OrderController.OrderRecord>;
+}
+
+<div class="container mt-4">
+    <h3>📅 今日訂單清單</h3>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+
+    @if (orders != null && orders.Count > 0)
+    {
+        var grouped = orders.GroupBy(o => o.OrderNumber);
+        foreach (var group in grouped)
+        {
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <span>訂單編號：<strong>@group.Key</strong></span>
+                    <form asp-action="DeleteOrder" method="post" style="margin:0;">
+                        <input type="hidden" name="orderNumber" value="@group.Key" />
+                        <button type="submit" class="btn btn-danger btn-sm">刪除此單</button>
+                    </form>
+                </div>
+
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>品項</th>
+                            <th class="text-end">單價</th>
+                            <th class="text-center">數量</th>
+                            <th class="text-end">小計</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in group)
+                        {
+                            <tr>
+                                <td>@item.ItemName</td>
+                                <td class="text-end">@item.Price.ToString("C0")</td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-end">@item.Subtotal.ToString("C0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold">總計</td>
+                            <td class="text-end fw-bold">
+                                @group.Sum(i => i.Subtotal).ToString("C0")
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info mt-3">今天尚未有任何訂單。</div>
+    }
+
+    <a asp-action="POS" class="btn btn-outline-primary mt-3">⬅ 回到點餐畫面</a>
+</div>
+
+<style>
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .card-header {
+        font-size: 1rem;
+    }
+</style>

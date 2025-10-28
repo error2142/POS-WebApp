@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "POS 點餐系統";
+    var menu = ViewBag.Menu as Dictionary<string, List<WebApplication1.Controllers.OrderController.MenuItem>>;
+    var cart = ViewBag.Cart as List<WebApplication1.Controllers.OrderController.CartItem>;
+}
+<div class="text-end mt-3 me-3">
+    <a asp-action="TodayOrders" class="btn btn-outline-dark">📋 查看今日訂單</a>
+</div>
+<div class="container mt-4">
+    <div class="row">
+        <!-- 左邊：菜單分類與品項 -->
+        <div class="col-md-7">
+            <h4 class="mb-3">🍱 點餐項目</h4>
+            @if (menu != null)
+            {
+                foreach (var category in menu)
+                {
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header bg-primary text-white fw-bold">@category.Key</div>
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in category.Value)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@item.Name</span>
+                                    <form asp-action="AddToCart" method="post" class="m-0 p-0">
+                                        <input type="hidden" name="name" value="@item.Name" />
+                                        <input type="hidden" name="price" value="@item.Price" />
+                                        <button class="btn btn-success btn-sm">
+                                            加入 @item.Price.ToString("C0")
+                                        </button>
+                                    </form>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- 右邊：購物車清單 -->
+        <div class="col-md-5">
+            <h4 class="mb-3">🧾 結帳清單</h4>
+
+            <table class="table table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>品項</th>
+                        <th class="text-center">數量</th>
+                        <th class="text-end">小計</th>
+                        <th class="text-center">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (cart != null && cart.Count > 0)
+                    {
+                        foreach (var item in cart)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-end">@item.Subtotal.ToString("C0")</td>
+                                <td class="text-center">
+                                    <form asp-action="RemoveItem" method="post" style="display:inline;">
+                                        <input type="hidden" name="name" value="@item.Name" />
+                                        <button class="btn btn-sm btn-danger">刪除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">尚未選擇任何品項</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="text-end fs-5 fw-bold mt-2 mb-3">
+                總金額：@(cart?.Sum(x => x.Subtotal).ToString("C0") ?? "$0")
+            </div>
+
+            @if (cart != null && cart.Count > 0)
+            {
+                <div class="d-flex gap-2">
+                    <form asp-action="Checkout" method="post" class="flex-fill">
+                        <button class="btn btn-primary w-100">💾 結帳並儲存</button>
+                    </form>
+                    <form asp-action="ClearCart" method="post" class="flex-fill">
+                        <button class="btn btn-danger w-100">清空購物車</button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .card-header {
+        font-size: 1.1rem;
+    }
+
+    .btn-success {
+        min-width: 100px;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .btn-danger {
+        font-size: 0.85rem;
+        padding: 4px 8px;
+    }
+</style>

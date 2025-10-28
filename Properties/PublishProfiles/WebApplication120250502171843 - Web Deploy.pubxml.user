@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+此檔案由您的 Web 專案發佈/封裝處理序使用。您可以藉由編輯此 MSBuild 檔案，
+自訂此處理序的行為。若要深入了解，請前往 https://go.microsoft.com/fwlink/?LinkID=208121。 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <History>True|2025-05-03T04:51:34.7318786Z||;False|2025-05-03T11:25:45.1768811+08:00||;True|2025-05-03T10:35:26.2840025+08:00||;True|2025-05-03T10:07:38.5359464+08:00||;True|2025-05-03T09:40:29.4793610+08:00||;True|2025-05-03T09:33:39.9021101+08:00||;True|2025-05-03T09:25:59.1054803+08:00||;False|2025-05-03T09:23:43.9088876+08:00||;False|2025-05-03T09:23:33.2103620+08:00||;True|2025-05-03T09:03:33.4537009+08:00||;True|2025-05-02T17:29:39.8568211+08:00||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>
