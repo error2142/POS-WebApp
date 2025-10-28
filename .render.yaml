@@ -1,0 +1,7 @@
+ervices:
+  - type: web
+    name: pos-webapp
+    env: dotnet
+    buildCommand: "dotnet publish -c Release -o out"
+    startCommand: "dotnet out/WebApplication1.dll"
+    plan: free
