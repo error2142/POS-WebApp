@@ -1672,11 +1672,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Desktop\\燒餅\\燒餅網頁下單-101\\WebApplication1\\WebApplication1.csproj",
+      "projectUniqueName": "C:\\Users\\User\\Desktop\\系統開發\\燒餅\\燒餅網頁下單-102\\WebApplication1\\WebApplication1.csproj",
       "projectName": "WebApplication1",
-      "projectPath": "C:\\Users\\User\\Desktop\\燒餅\\燒餅網頁下單-101\\WebApplication1\\WebApplication1.csproj",
+      "projectPath": "C:\\Users\\User\\Desktop\\系統開發\\燒餅\\燒餅網頁下單-102\\WebApplication1\\WebApplication1.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Desktop\\燒餅\\燒餅網頁下單-101\\WebApplication1\\obj\\",
+      "outputPath": "C:\\Users\\User\\Desktop\\系統開發\\燒餅\\燒餅網頁下單-102\\WebApplication1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

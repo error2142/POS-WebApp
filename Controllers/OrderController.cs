@@ -9,9 +9,9 @@ namespace WebApplication1.Controllers
     public class OrderController : Controller
     {
         // ✅ 資料庫連線字串
+        
         private readonly string connStr =
-            "Server=220.132.119.146\\SQLEXPRESS;Database=Asia_wms;User Id=SA_02;Password=0912888237;TrustServerCertificate=True;";
-
+    Environment.GetEnvironmentVariable("DB_CONNECTION") ?? "";
         // ✅ 購物車暫存
         private static List<CartItem> Cart = new();
 
@@ -76,6 +76,17 @@ namespace WebApplication1.Controllers
             var item = Cart.FirstOrDefault(x => x.Name == name);
             if (item != null)
                 Cart.Remove(item);
+
+            return RedirectToAction("POS");
+        }
+
+        // ✅ 修改購物車數量
+        [HttpPost]
+        public IActionResult UpdateQuantity(string name, int quantity)
+        {
+            var item = Cart.FirstOrDefault(x => x.Name == name);
+            if (item != null && quantity > 0)
+                item.Quantity = quantity;
 
             return RedirectToAction("POS");
         }

@@ -3,9 +3,11 @@
     var menu = ViewBag.Menu as Dictionary<string, List<WebApplication1.Controllers.OrderController.MenuItem>>;
     var cart = ViewBag.Cart as List<WebApplication1.Controllers.OrderController.CartItem>;
 }
+
 <div class="text-end mt-3 me-3">
     <a asp-action="TodayOrders" class="btn btn-outline-dark">📋 查看今日訂單</a>
 </div>
+
 <div class="container mt-4">
     <div class="row">
         <!-- 左邊：菜單分類與品項 -->
@@ -46,6 +48,7 @@
                     <tr>
                         <th>品項</th>
                         <th class="text-center">數量</th>
+                        <th class="text-end">單價</th>
                         <th class="text-end">小計</th>
                         <th class="text-center">操作</th>
                     </tr>
@@ -53,11 +56,22 @@
                 <tbody>
                     @if (cart != null && cart.Count > 0)
                     {
-                        foreach (var item in cart)
+                        for (int i = 0; i < cart.Count; i++)
                         {
+                            var item = cart[i];
                             <tr>
                                 <td>@item.Name</td>
-                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-center">
+                                    <form asp-action="UpdateQuantity" method="post" class="d-inline-block">
+                                        <input type="hidden" name="name" value="@item.Name" />
+                                        <input type="number" name="quantity" value="@item.Quantity"
+                                               min="1" class="form-control form-control-sm text-center qty-input"
+                                               inputmode="numeric" pattern="[0-9]*"
+                                               style="width:70px; display:inline-block;">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary ms-1">✔</button>
+                                    </form>
+                                </td>
+                                <td class="text-end">@item.Price.ToString("C0")</td>
                                 <td class="text-end">@item.Subtotal.ToString("C0")</td>
                                 <td class="text-center">
                                     <form asp-action="RemoveItem" method="post" style="display:inline;">
@@ -71,7 +85,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="4" class="text-center text-muted">尚未選擇任何品項</td>
+                            <td colspan="5" class="text-center text-muted">尚未選擇任何品項</td>
                         </tr>
                     }
                 </tbody>
@@ -117,4 +131,26 @@
         font-size: 0.85rem;
         padding: 4px 8px;
     }
+
+    .qty-input {
+        font-size: 1rem;
+        text-align: center;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+        .qty-input::-webkit-outer-spin-button,
+        .qty-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 </style>
+
+<script>
+    // ✅ 手機點數量欄時，強制跳出數字鍵盤
+    document.querySelectorAll('.qty-input').forEach(input => {
+        input.addEventListener('focus', function () {
+            this.showPicker?.(); // 在手機瀏覽器會自動跳出小鍵盤
+        });
+    });
+</script>
