@@ -25,7 +25,7 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
                                     <div>
                                         <strong>@item.Name</strong>
-                                        <span class="text-muted">@item.Price.ToString("C0")</span>
+                                        <span class="text-muted">@item.Price.ToString("N0")</span>
                                     </div>
                                     <div class="d-flex gap-2">
                                         <!-- 主品項按鈕 -->
@@ -46,7 +46,7 @@
                                                 <input type="hidden" name="extraNote" value="@item.ExtraNote" />
                                                 <input type="hidden" name="extraPrice" value="@item.ExtraPrice" />
                                                 <button class="btn btn-warning btn-sm">
-                                                    +@item.ExtraNote (+@item.ExtraPrice.ToString("C0"))
+                                                    +@item.ExtraNote (+@item.ExtraPrice.ToString("N0"))
                                                 </button>
                                             </form>
                                         }
@@ -91,8 +91,8 @@
                                         <button type="submit" class="btn btn-sm btn-outline-primary ms-1">✔</button>
                                     </form>
                                 </td>
-                                <td class="text-end">@item.Price.ToString("C0")</td>
-                                <td class="text-end">@item.Subtotal.ToString("C0")</td>
+                                <td class="text-end">@item.Price.ToString("N0")</td>
+                                <td class="text-end">@item.Subtotal.ToString("N0")</td>
                                 <td class="text-center">
                                     <form asp-action="RemoveItem" method="post" style="display:inline;">
                                         <input type="hidden" name="name" value="@item.Name" />
@@ -112,7 +112,7 @@
             </table>
 
             <div class="text-end fs-5 fw-bold mt-2 mb-3">
-                總金額：@(cart?.Sum(x => x.Subtotal).ToString("C0") ?? "$0")
+                總金額：@(cart?.Sum(x => x.Subtotal).ToString("N0") ?? "0")
             </div>
 
             @if (cart != null && cart.Count > 0)
