@@ -4,7 +4,8 @@
     var cart = ViewBag.Cart as List<WebApplication1.Controllers.OrderController.CartItem>;
 }
 
-<div class="text-center bg-dark text-white py-3 mb-3 shadow-sm" style="font-size:1.8rem; font-weight:bold;">
+<!-- 🔹 頂部品牌列 -->
+<div class="text-center bg-dark text-white py-3 mb-4 shadow-sm" style="font-size:1.8rem; font-weight:bold;">
     品.燒餅
 </div>
 
@@ -26,15 +27,33 @@
                         <ul class="list-group list-group-flush">
                             @foreach (var item in category.Value)
                             {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>@item.Name</span>
-                                    <form asp-action="AddToCart" method="post" class="m-0 p-0">
-                                        <input type="hidden" name="name" value="@item.Name" />
-                                        <input type="hidden" name="price" value="@item.Price" />
-                                        <button class="btn btn-success btn-sm">
-                                            加入 @item.Price.ToString("C0")
-                                        </button>
-                                    </form>
+                                <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                                    <div>
+                                        <strong>@item.Name</strong>
+                                        <span class="text-muted">@item.Price.ToString("C0")</span>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <!-- 主品項按鈕 -->
+                                        <form asp-action="AddToCart" method="post" class="m-0 p-0">
+                                            <input type="hidden" name="name" value="@item.Name" />
+                                            <input type="hidden" name="price" value="@item.Price" />
+                                            <button class="btn btn-success btn-sm">確認</button>
+                                        </form>
+
+                                        <!-- 若有加料選項 -->
+                                        @if (!string.IsNullOrEmpty(item.ExtraNote))
+                                        {
+                                            <form asp-action="AddToCart" method="post" class="m-0 p-0">
+                                                <input type="hidden" name="name" value="@item.Name" />
+                                                <input type="hidden" name="price" value="@item.Price" />
+                                                <input type="hidden" name="extraNote" value="@item.ExtraNote" />
+                                                <input type="hidden" name="extraPrice" value="@item.ExtraPrice" />
+                                                <button class="btn btn-warning btn-sm">
+                                                    +@item.ExtraNote (+@item.ExtraPrice.ToString("C0"))
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
                                 </li>
                             }
                         </ul>
@@ -117,13 +136,14 @@
 <style>
     body {
         background-color: #f8f9fa;
+        font-family: "微軟正黑體", sans-serif;
     }
 
     .card-header {
         font-size: 1.1rem;
     }
 
-    .btn-success {
+    .btn-success, .btn-warning {
         min-width: 100px;
     }
 
