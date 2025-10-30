@@ -1,19 +1,20 @@
 ﻿@{
-    Layout = null;  // ✅ 不使用預設 Layout，避免出現 "WebApplication1 Home Privacy"
+    Layout = null; // 🚫 移除預設 Layout，避免出現 WebApplication1 / Home / Privacy
     ViewData["Title"] = "POS 點餐系統";
     var menu = ViewBag.Menu as Dictionary<string, List<WebApplication1.Controllers.OrderController.MenuItem>>;
     var cart = ViewBag.Cart as List<WebApplication1.Controllers.OrderController.CartItem>;
 }
 
-<!-- 🔹 標頭區：顯示店名 品.燒餅 -->
-<header class="bg-dark text-white p-3 shadow-sm mb-3">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h3 class="m-0 fw-bold">品.燒餅</h3>
-        <a asp-action="TodayOrders" class="btn btn-outline-light btn-sm">📋 查看今日訂單</a>
-    </div>
-</header>
+<!-- 🔹 頂部店名 -->
+<div class="text-center bg-dark text-white py-3 mb-3 shadow-sm" style="font-size:1.8rem; font-weight:bold;">
+    品.燒餅
+</div>
 
-<div class="container mt-3">
+<div class="text-end mt-3 me-3">
+    <a asp-action="TodayOrders" class="btn btn-outline-dark">📋 查看今日訂單</a>
+</div>
+
+<div class="container mt-4">
     <div class="row">
         <!-- 左邊：菜單分類與品項 -->
         <div class="col-md-7">
@@ -139,12 +140,6 @@
         font-family: "微軟正黑體", sans-serif;
     }
 
-    header {
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-
     .card-header {
         font-size: 1.1rem;
     }
@@ -180,7 +175,7 @@
     // ✅ 手機點數量欄時，強制跳出數字鍵盤
     document.querySelectorAll('.qty-input').forEach(input => {
         input.addEventListener('focus', function () {
-            this.showPicker?.();
+            this.showPicker?.(); // 在手機瀏覽器會自動跳出小鍵盤
         });
     });
 </script>
