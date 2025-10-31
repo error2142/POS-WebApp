@@ -13,6 +13,7 @@ namespace WebApplication1.Controllers
             Environment.GetEnvironmentVariable("DB_CONNECTION") ??
             "Server=220.132.119.146\\SQLEXPRESS;Database=Asia_wms;User Id=SA_02;Password=0912888237;TrustServerCertificate=True;";
 
+        
         // ✅ 購物車暫存
         private static List<CartItem> Cart = new();
 
@@ -71,7 +72,7 @@ namespace WebApplication1.Controllers
             else
                 exist.Quantity++;
 
-            return RedirectToAction("POS");
+            return Ok(); // ✅ 不重整頁面，讓 AJAX 處理購物車更新
         }
 
         // ✅ 修改購物車數量
@@ -195,6 +196,12 @@ namespace WebApplication1.Controllers
 
             ViewBag.TodayOrders = todayOrders;
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult CartPartial()
+        {
+            return PartialView("_CartPartial", Cart);
         }
 
         // ✅ 刪除單筆訂單

@@ -34,7 +34,7 @@
                                     </div>
                                     <div class="d-flex gap-2">
                                         <!-- 主品項按鈕 -->
-                                        <form asp-action="AddToCart" method="post" class="m-0 p-0">
+                                        <form asp-action="AddToCart" method="post" class="add-to-cart-form m-0 p-0">
                                             <input type="hidden" name="name" value="@item.Name" />
                                             <input type="hidden" name="price" value="@item.Price" />
                                             <button class="btn btn-success btn-sm">確認</button>
@@ -43,7 +43,7 @@
                                         <!-- 若有加料選項 -->
                                         @if (!string.IsNullOrEmpty(item.ExtraNote))
                                         {
-                                            <form asp-action="AddToCart" method="post" class="m-0 p-0">
+                                            <form asp-action="AddToCart" method="post" class="add-to-cart-form m-0 p-0">
                                                 <input type="hidden" name="name" value="@item.Name" />
                                                 <input type="hidden" name="price" value="@item.Price" />
                                                 <input type="hidden" name="extraNote" value="@item.ExtraNote" />
@@ -66,69 +66,10 @@
         <div class="col-md-5">
             <h4 class="mb-3">🧾 結帳清單</h4>
 
-            <table class="table table-striped align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>品項</th>
-                        <th class="text-center">數量</th>
-                        <th class="text-end">單價</th>
-                        <th class="text-end">小計</th>
-                        <th class="text-center">操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (cart != null && cart.Count > 0)
-                    {
-                        for (int i = 0; i < cart.Count; i++)
-                        {
-                            var item = cart[i];
-                            <tr>
-                                <td>@item.Name</td>
-                                <td class="text-center">
-                                    <form asp-action="UpdateQuantity" method="post" class="d-inline-block">
-                                        <input type="hidden" name="name" value="@item.Name" />
-                                        <input type="number" name="quantity" value="@item.Quantity"
-                                               min="1" class="form-control form-control-sm text-center qty-input"
-                                               inputmode="numeric" pattern="[0-9]*"
-                                               style="width:70px; display:inline-block;">
-                                        <button type="submit" class="btn btn-sm btn-outline-primary ms-1">✔</button>
-                                    </form>
-                                </td>
-                                <td class="text-end">@item.Price.ToString("N0")</td>
-                                <td class="text-end">@item.Subtotal.ToString("N0")</td>
-                                <td class="text-center">
-                                    <form asp-action="RemoveItem" method="post" style="display:inline;">
-                                        <input type="hidden" name="name" value="@item.Name" />
-                                        <button class="btn btn-sm btn-danger">刪除</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">尚未選擇任何品項</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            <div class="text-end fs-5 fw-bold mt-2 mb-3">
-                總金額：@(cart?.Sum(x => x.Subtotal).ToString("C0") ?? "0")
+            <!-- ✅ 使用 PartialView 統一購物車內容 -->
+            <div id="cart-section">
+                @await Html.PartialAsync("_CartPartial", cart)
             </div>
-
-            @if (cart != null && cart.Count > 0)
-            {
-                <div class="d-flex gap-2">
-                    <form asp-action="Checkout" method="post" class="flex-fill">
-                        <button class="btn btn-primary w-100">💾 結帳並儲存</button>
-                    </form>
-                    <form asp-action="ClearCart" method="post" class="flex-fill">
-                        <button class="btn btn-danger w-100">清空購物車</button>
-                    </form>
-                </div>
-            }
         </div>
     </div>
 </div>
@@ -175,6 +116,43 @@
     document.querySelectorAll('.qty-input').forEach(input => {
         input.addEventListener('focus', function () {
             this.showPicker?.(); // 在手機瀏覽器會自動跳出小鍵盤
+        });
+    });
+</script>
+
+<script>
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault(); // 不重整頁面
+            const formData = new FormData(this);
+
+            const res = await fetch('/Order/AddToCart', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                // ✅ 更新右側購物車內容
+                const html = await fetch('/Order/CartPartial').then(r => r.text());
+                document.getElementById('cart-section').innerHTML = html;
+
+                // ✅ 小提示浮窗
+                const toast = document.createElement('div');
+                toast.textContent = '✅ 已加入購物車';
+                Object.assign(toast.style, {
+                    position: 'fixed',
+                    bottom: '20px',
+                    right: '20px',
+                    background: '#198754',
+                    color: 'white',
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    zIndex: '9999',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                });
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 1500);
+            }
         });
     });
 </script>

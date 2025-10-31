@@ -1,0 +1,55 @@
+﻿@model List<WebApplication1.Controllers.OrderController.CartItem>
+
+<table class="table table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>品項</th>
+            <th class="text-center">數量</th>
+            <th class="text-end">單價</th>
+            <th class="text-end">小計</th>
+            <th class="text-center">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Count > 0)
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td class="text-center">@item.Quantity</td>
+                    <td class="text-end">@item.Price.ToString("N0")</td>
+                    <td class="text-end">@item.Subtotal.ToString("N0")</td>
+                    <td class="text-center">
+                        <form asp-action="RemoveItem" method="post" style="display:inline;">
+                            <input type="hidden" name="name" value="@item.Name" />
+                            <button class="btn btn-sm btn-danger">刪除</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center text-muted">尚未選擇任何品項</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="text-end fs-5 fw-bold mt-2 mb-3">
+    總金額：@(Model?.Sum(x => x.Subtotal).ToString("N0") ?? "0")
+</div>
+
+@if (Model != null && Model.Count > 0)
+{
+    <div class="d-flex gap-2">
+        <form asp-action="Checkout" method="post" class="flex-fill">
+            <button class="btn btn-primary w-100">💾 結帳並儲存</button>
+        </form>
+        <form asp-action="ClearCart" method="post" class="flex-fill">
+            <button class="btn btn-danger w-100">清空購物車</button>
+        </form>
+    </div>
+}
