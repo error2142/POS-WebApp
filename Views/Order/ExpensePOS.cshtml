@@ -1,12 +1,12 @@
 ﻿@{
-    ViewData["Title"] = "POS 點餐系統";
+    ViewData["Title"] = "POS 支出系統";
     var menu = ViewBag.Menu as Dictionary<string, List<WebApplication1.Controllers.OrderController.MenuItem>>;
     var cart = ViewBag.Cart as List<WebApplication1.Controllers.OrderController.CartItem>;
 }
 
 <!-- 🔹 頂部品牌列 -->
 <div class="text-center bg-dark text-white py-3 mb-4 shadow-sm" style="font-size:1.8rem; font-weight:bold;">
-    品.燒餅
+    品.燒餅 支出紀錄
 </div>
 
 <!-- 🔸收支切換按鈕 -->
@@ -139,7 +139,7 @@
 
             if (res.ok) {
                 // ✅ 更新右側購物車內容
-                const html = await fetch('/Order/CartPartial?viewType=POS').then(r => r.text());
+                const html = await fetch('/Order/CartPartial?viewType=ExpensePOS').then(r => r.text());
                 document.getElementById('cart-section').innerHTML = html;
 
                 // ✅ 小提示浮窗

@@ -45,11 +45,21 @@
 @if (Model != null && Model.Count > 0)
 {
     <div class="d-flex gap-2">
-        <form asp-action="Checkout" method="post" class="flex-fill">
-            <button class="btn btn-primary w-100">💾 結帳並儲存</button>
-        </form>
+        @if (ViewBag.ViewType?.ToString() == "ExpensePOS")
+        {
+            <form asp-action="ExpenseCheckout" method="post" class="flex-fill">
+                <button class="btn btn-danger w-100">💾 登記支出</button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Checkout" method="post" class="flex-fill">
+                <button class="btn btn-primary w-100">💾 結帳並儲存</button>
+            </form>
+        }
+
         <form asp-action="ClearCart" method="post" class="flex-fill">
-            <button class="btn btn-danger w-100">清空購物車</button>
+            <button class="btn btn-outline-secondary w-100">清空購物車</button>
         </form>
     </div>
 }
