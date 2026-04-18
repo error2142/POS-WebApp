@@ -18,7 +18,13 @@
         {
             <div class="card mb-3 shadow-sm">
                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                    <span>訂單編號：<strong>@group.Key</strong></span>
+                    <div>
+                        📄 訂單編號：<strong>@group.Key</strong>
+                        &nbsp;&nbsp;
+                        👤 客戶：@group.First().Customer @group.First().CustomerName
+                        &nbsp;&nbsp;
+                        📅 配送：@DateTime.Parse(group.First().DeliveryDate).ToString("yyyy/MM/dd")
+                    </div>
                     <form asp-action="DeleteOrder" method="post" style="margin:0;">
                         <input type="hidden" name="orderNumber" value="@group.Key" />
                         <button type="submit" class="btn btn-danger btn-sm">刪除此單</button>
@@ -29,27 +35,23 @@
                     <thead class="table-light">
                         <tr>
                             <th>品項</th>
-                            <th class="text-end">單價</th>
                             <th class="text-center">數量</th>
-                            <th class="text-end">小計</th>
-                        </tr>
+                            </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in group)
                         {
                             <tr>
                                 <td>@item.ItemName</td>
-                                <td class="text-end">@item.Price.ToString("N0")</td>
                                 <td class="text-center">@item.Quantity</td>
-                                <td class="text-end">@item.Subtotal.ToString("N0")</td>
                             </tr>
                         }
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
-                            <td colspan="3" class="text-end fw-bold">總計</td>
-                            <td class="text-end fw-bold">
-                                @group.Sum(i => i.Subtotal).ToString("N0")
+                            <td class="text-end fw-bold">總數量</td>
+                            <td class="text-center fw-bold">
+                                @group.Sum(i => i.Quantity)
                             </td>
                         </tr>
                     </tfoot>

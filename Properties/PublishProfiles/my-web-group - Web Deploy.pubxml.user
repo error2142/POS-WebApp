@@ -6,6 +6,7 @@
 <Project>
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <EncryptedPassword />
+    <History>False|2026-04-18T02:47:34.8694011Z||;False|2026-04-18T10:47:27.5215452+08:00||;False|2026-04-18T10:46:53.9968183+08:00||;</History>
+    <LastFailureDetails />
   </PropertyGroup>
 </Project>

@@ -17,14 +17,40 @@
             {
                 <tr>
                     <td>@item.Name</td>
-                    <td class="text-center">@item.Quantity</td>
+
+                    <!-- 🔥 數量 -->
+                    <td class="text-center">
+
+                        <div class="d-flex justify-content-center align-items-center gap-2">
+
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary btn-minus px-2"
+                                    data-name="@item.Name">
+                                ➖
+                            </button>
+
+                            <span class="fw-bold">@item.Quantity</span>
+
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary btn-plus px-2"
+                                    data-name="@item.Name">
+                                ➕
+                            </button>
+
+                        </div>
+
+                    </td>
+
                     <td class="text-end">@item.Price.ToString("N0")</td>
                     <td class="text-end">@item.Subtotal.ToString("N0")</td>
+
+                    <!-- 🔥 刪除 -->
                     <td class="text-center">
-                        <form asp-action="RemoveItem" method="post" style="display:inline;">
-                            <input type="hidden" name="name" value="@item.Name" />
-                            <button class="btn btn-sm btn-danger">刪除</button>
-                        </form>
+                        <button type="button"
+                                class="btn btn-sm btn-danger btn-remove"
+                                data-name="@item.Name">
+                            刪除
+                        </button>
                     </td>
                 </tr>
             }
@@ -32,7 +58,9 @@
         else
         {
             <tr>
-                <td colspan="5" class="text-center text-muted">尚未選擇任何品項</td>
+                <td colspan="5" class="text-center text-muted">
+                    尚未選擇任何品項
+                </td>
             </tr>
         }
     </tbody>
@@ -45,21 +73,11 @@
 @if (Model != null && Model.Count > 0)
 {
     <div class="d-flex gap-2">
-        @if (ViewBag.ViewType?.ToString() == "ExpensePOS")
-        {
-            <form asp-action="ExpenseCheckout" method="post" class="flex-fill">
-                <button class="btn btn-danger w-100">💾 登記支出</button>
-            </form>
-        }
-        else
-        {
-            <form asp-action="Checkout" method="post" class="flex-fill">
-                <button class="btn btn-primary w-100">💾 結帳並儲存</button>
-            </form>
-        }
 
-        <form asp-action="ClearCart" method="post" class="flex-fill">
-            <button class="btn btn-outline-secondary w-100">清空購物車</button>
+        <!-- ✅ 結帳 -->
+        <form asp-action="Checkout" method="post" class="flex-fill">
+           
         </form>
+               
     </div>
 }

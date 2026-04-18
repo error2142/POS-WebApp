@@ -2,163 +2,422 @@
     ViewData["Title"] = "POS 點餐系統";
     var menu = ViewBag.Menu as Dictionary<string, List<WebApplication1.Controllers.OrderController.MenuItem>>;
     var cart = ViewBag.Cart as List<WebApplication1.Controllers.OrderController.CartItem>;
+    var user = Context.Session.GetString("user");
 }
 
-<!-- 🔹 頂部品牌列 -->
-<div class="text-center bg-dark text-white py-3 mb-4 shadow-sm" style="font-size:1.8rem; font-weight:bold;">
-    品.燒餅
+<style>
+    #categoryDrawer {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        width: 250px;
+        height: 100%;
+        background: white;
+        z-index: 2000;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+        transition: 0.3s;
+        padding: 15px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+        #categoryDrawer.open {
+            left: 0;
+        }
+
+    #overlay {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        display: none;
+        z-index: 1999;
+    }
+
+    .header-bar {
+        background: linear-gradient(90deg,#1e3c72,#2a5298);
+        color: white;
+    }
+
+    .category-bar {
+        white-space: nowrap;
+    }
+
+    .category-btn {
+        width: 100%; /* 🔥 滿版 */
+        height: 40px;
+        margin-bottom: 6px; /* 🔥 小間距 */
+        border-radius: 8px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .scroll-btn {
+        position: fixed; /* 🔥 關鍵！ */
+        right: 20px; /* 靠右 */
+        width: 45px;
+        height: 45px;
+        border: 1px solid #333;
+        background: #fff;
+        color: #000;
+        border-radius: 10px;
+        cursor: pointer;
+        z-index: 9999; /* 🔥 防止被蓋住 */
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #btnTop {
+        bottom: 90px; /* 上面那顆 */
+    }
+
+    #btnBottom {
+        bottom: 30px; /* 下面那顆 */
+    }
+
+    .scroll-btn:hover {
+        background: #000;
+        color: #fff;
+    }
+</style>
+
+<!-- Drawer -->
+<div id="categoryDrawer">
+    <h5>分類</h5>
+
+    <button class="btn btn-outline-dark category-btn" onclick="filterCategory('all')">全部</button>
+
+    @foreach (var c in menu.Keys)
+    {
+        <button class="btn btn-outline-dark category-btn" onclick="filterCategory('@c')">@c</button>
+    }
 </div>
 
-<!-- 🔸收支切換按鈕 -->
-<div class="text-center mb-4">
-    <a asp-action="POS" class="btn btn-success me-2">💰 收入 POS</a>
-    <a asp-action="ExpensePOS" class="btn btn-danger">💸 支出 POS</a>
+<div id="overlay" onclick="closeDrawer()"></div>
+
+<!-- Header -->
+<div class="text-center py-3 mb-3 header-bar shadow">
+    <span style="font-size:1.5rem;">肉球_下單系統</span>
 </div>
 
-<div class="text-end mt-3 me-3">
-    <a asp-action="TodayOrders" class="btn btn-outline-dark">📋 查看今日訂單</a>
-</div>
+<div class="container mt-3">
 
-<div class="container mt-4">
-    <div class="row">
-        <!-- 左邊：菜單分類與品項 -->
+
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <!-- 左邊 -->
+        <div style="font-size:14px;">
+            歡迎: <strong>@user</strong>
+        </div>
+
+        <!-- 右邊 -->
+        <a asp-action="TodayOrders" class="btn btn-outline-dark">
+            📋 查看今日訂單
+        </a>
+
+    </div>
+
+    <!-- 客戶 -->
+    <div class="row g-2 mb-3">
+        <div class="col-md-4 position-relative">
+
+            <input type="text" id="customerInput" class="form-control" placeholder="客戶名稱">
+
+            <!-- 🔥 提示清單 -->
+            <div id="customerList"
+                 class="list-group position-absolute w-100"
+                 style="z-index:1000; display:none;"></div>
+
+            <!-- 🔥 錯誤提示 -->
+            <div id="customerError" class="text-danger mt-1" style="display:none;">
+                請先輸入客戶名稱
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <input type="date" id="orderDate" class="form-control" value="@ViewBag.DefaultDate" />
+        </div>
+    </div>
+
+       <div class="row">
+
+        <!-- 商品 -->
         <div class="col-md-7">
-            <h4 class="mb-3">🍱 點餐項目</h4>
-            @if (menu != null)
-            {
-                foreach (var category in menu)
-                {
-                    <div class="card mb-3 shadow-sm">
-                        <div class="card-header bg-primary text-white fw-bold">@category.Key</div>
-                        <ul class="list-group list-group-flush">
-                            @foreach (var item in category.Value)
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                    <div>
-                                        <strong>@item.Name</strong>
-                                        <span class="text-muted">@item.Price.ToString("N0")</span>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <!-- 主品項按鈕 -->
-                                        <form asp-action="AddToCart" method="post" class="add-to-cart-form m-0 p-0">
-                                            <input type="hidden" name="name" value="@item.Name" />
-                                            <input type="hidden" name="price" value="@item.Price" />
-                                            <button class="btn btn-success btn-sm">確認</button>
-                                        </form>
+            <h5>🍱 訂單項目</h5>
 
-                                        <!-- 若有加料選項 -->
-                                        @if (!string.IsNullOrEmpty(item.ExtraNote))
-                                        {
-                                            <form asp-action="AddToCart" method="post" class="add-to-cart-form m-0 p-0">
-                                                <input type="hidden" name="name" value="@item.Name" />
-                                                <input type="hidden" name="price" value="@item.Price" />
-                                                <input type="hidden" name="extraNote" value="@item.ExtraNote" />
-                                                <input type="hidden" name="extraPrice" value="@item.ExtraPrice" />
-                                                <button class="btn btn-warning btn-sm">
-                                                    +@item.ExtraNote (+@item.ExtraPrice.ToString("N0"))
-                                                </button>
-                                            </form>
-                                        }
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                }
+            <!-- 搜尋 -->
+            <div class="d-flex mb-2">
+                <button type="button" class="btn btn-outline-dark me-2" onclick="openDrawer()">☰</button>
+                <input type="text" class="form-control" placeholder="🔍 搜尋商品..." onkeyup="filterItem(this.value)">
+            </div>
+
+            @foreach (var category in menu)
+            {
+                <div class="card mb-3 item" data-category="@category.Key">
+
+                    <div class="card-header bg-dark text-white">@category.Key</div>
+
+                    <ul class="list-group">
+                        @foreach (var item in category.Value)
+                        {
+                            <li class="list-group-item d-flex justify-content-between">
+                                <div>
+                                    <strong>@item.Name</strong><br />
+                                    $@item.Price
+                                </div>
+
+                                <button type="button"
+                                        class="btn btn-outline-dark add-btn"
+                                        data-name="@item.Name"
+                                        data-price="@item.Price">
+                                    加入
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                </div>
             }
         </div>
 
-        <!-- 右邊：購物車清單 -->
+        <!-- 購物車 -->
         <div class="col-md-5">
-            <h4 class="mb-3">🧾 結帳清單</h4>
 
-            <!-- ✅ 使用 PartialView 統一購物車內容 -->
+            <!-- 🔥 標題 + 清空按鈕 -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                <h5 class="mb-0">🧾 訂單明細</h5>
+
+                <button class="btn btn-outline-dark btn-sm px-2"
+                        onclick="clearCart()"
+                        title="清空購物車">
+                    🗑
+                </button>
+
+            </div>
+
             <div id="cart-section">
                 @await Html.PartialAsync("_CartPartial", cart)
             </div>
+
+            <form asp-action="Checkout" method="post">
+                <input type="hidden" name="customer" id="hiddenCustomer" />
+                <input type="hidden" name="orderDate" id="hiddenDate" />
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">
+                    結帳
+                </button>
+            </form>
+
         </div>
+
     </div>
 </div>
 
-<style>
-    body {
-        background-color: #f8f9fa;
-        font-family: "微軟正黑體", sans-serif;
+<button id="btnTop" class="scroll-btn">⬆</button>
+<button id="btnBottom" class="scroll-btn">⬇</button>
+
+<script>
+
+    // Drawer
+    function openDrawer(){
+        document.getElementById("categoryDrawer").classList.add("open");
+        document.getElementById("overlay").style.display = "block";
+    }
+    function closeDrawer(){
+        document.getElementById("categoryDrawer").classList.remove("open");
+        document.getElementById("overlay").style.display = "none";
     }
 
-    .card-header {
-        font-size: 1.1rem;
+    // 搜尋
+    function filterItem(keyword){
+        keyword = keyword.toLowerCase();
+        document.querySelectorAll(".item").forEach(i=>{
+            let text = i.innerText.toLowerCase();
+            i.style.display = text.includes(keyword) ? "" : "none";
+        });
     }
 
-    .btn-success, .btn-warning {
-        min-width: 100px;
+    // 🔥 reload cart
+    async function reloadCart() {
+        let html = await fetch('/Order/CartPartial').then(r => r.text());
+        document.getElementById('cart-section').innerHTML = html;
+        bindCartEvents();
     }
 
-    .table td, .table th {
-        vertical-align: middle;
+    // 🔥 綁定購物車
+    function bindCartEvents() {
+        document.querySelectorAll('.btn-plus').forEach(btn=>{
+            btn.onclick = async ()=> await changeQty(btn.dataset.name,1);
+        });
+        document.querySelectorAll('.btn-minus').forEach(btn=>{
+            btn.onclick = async ()=> await changeQty(btn.dataset.name,-1);
+        });
+        document.querySelectorAll('.btn-remove').forEach(btn=>{
+            btn.onclick = async ()=> await removeItem(btn.dataset.name);
+        });
     }
 
-    .btn-danger {
-        font-size: 0.85rem;
-        padding: 4px 8px;
-    }
+    // 🔥 客戶搜尋提示（修復重點🔥）
+    document.getElementById("customerInput").addEventListener("input", async function () {
 
-    .qty-input {
-        font-size: 1rem;
-        text-align: center;
-        -webkit-appearance: none;
-        appearance: none;
-    }
+        let keyword = this.value;
 
-        .qty-input::-webkit-outer-spin-button,
-        .qty-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        if (keyword.length < 1) {
+            closeCustomerList();
+            return;
         }
-</style>
 
-<script>
-    // ✅ 手機點數量欄時，強制跳出數字鍵盤
-    document.querySelectorAll('.qty-input').forEach(input => {
-        input.addEventListener('focus', function () {
-            this.showPicker?.(); // 在手機瀏覽器會自動跳出小鍵盤
+        let res = await fetch('/Order/SearchCustomer?keyword=' + encodeURIComponent(keyword));
+        let data = await res.json();
+
+        let list = document.getElementById("customerList");
+        list.innerHTML = "";
+
+        data.forEach(item => {
+            let div = document.createElement("div");
+            div.className = "list-group-item list-group-item-action";
+            div.innerText = item;
+
+            div.onclick = function () {
+                document.getElementById("customerInput").value = item;
+                closeCustomerList();
+            };
+
+            list.appendChild(div);
         });
+
+        list.style.display = "block";
     });
-</script>
 
-<script>
-        document.querySelectorAll('.add-to-cart-form').forEach(form => {
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault(); // 不重整頁面
-            const formData = new FormData(this);
+    function closeCustomerList(){
+        document.getElementById("customerList").style.display = "none";
+    }
 
-            const res = await fetch('/Order/AddToCart', {
-                method: 'POST',
-                body: formData
+    // 🔥 DOM ready
+    document.addEventListener("DOMContentLoaded", function () {
+
+        bindCartEvents();
+
+        document.querySelectorAll('.add-btn').forEach(btn=>{
+            btn.addEventListener('click',async function(){
+
+                let input = document.getElementById("customerInput");
+                let customer = input.value;
+
+                if(!customer){
+                    input.classList.add("is-invalid");
+                    document.getElementById("customerError").style.display = "block";
+                    input.focus();
+                    return;
+                }
+
+                let formData=new FormData();
+                formData.append("name",this.dataset.name);
+                formData.append("price",this.dataset.price);
+
+                await fetch('/Order/AddToCart',{method:'POST',body:formData});
+                await reloadCart();
             });
-
-            if (res.ok) {
-                // ✅ 更新右側購物車內容
-                const html = await fetch('/Order/CartPartial?viewType=POS').then(r => r.text());
-                document.getElementById('cart-section').innerHTML = html;
-
-                // ✅ 小提示浮窗
-                const toast = document.createElement('div');
-                toast.textContent = '✅ 已加入購物車';
-                Object.assign(toast.style, {
-                    position: 'fixed',
-                    bottom: '20px',
-                    right: '20px',
-                    background: '#198754',
-                    color: 'white',
-                    padding: '10px 16px',
-                    borderRadius: '8px',
-                    zIndex: '9999',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
-                });
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 1500);
-            }
         });
+
+        document.getElementById("customerInput").addEventListener("input", function(){
+            this.classList.remove("is-invalid");
+            document.getElementById("customerError").style.display = "none";
+        });
+
+            document.querySelector('form[action*="Checkout"]').addEventListener("submit", function (e) {
+
+        let raw = document.getElementById("customerInput").value;
+
+        if (!raw) {
+            alert("請選擇客戶");
+            e.preventDefault();
+            return;
+        }
+
+        let customerNumber = raw.split(" - ")[0];
+
+        // 🔥 防呆：限制長度
+        if (customerNumber.length > 20) {
+            alert("客戶編號過長");
+            e.preventDefault();
+            return;
+        }
+
+        document.getElementById("hiddenCustomer").value = customerNumber;
+        document.getElementById("hiddenDate").value = document.getElementById("orderDate").value;
     });
+
+    });
+
+        // API functions
+
+    async function removeItem(name){
+
+        let fd = new FormData();
+        fd.append("name", name);
+
+        await fetch('/Order/RemoveItem',{
+            method:'POST',
+            body: fd
+        });
+
+        await reloadCart();
+    }
+
+    async function clearCart(){
+        await fetch('/Order/ClearCart',{method:'POST'});
+        await reloadCart();
+    }
+
+    async function changeQty(name,delta){
+        let fd = new FormData();
+        fd.append("name", name);
+        fd.append("delta", delta);
+
+        await fetch('/Order/ChangeQty',{
+            method:'POST',
+            body: fd
+        });
+
+        await reloadCart();
+    }
+        function filterCategory(category){
+
+        document.querySelectorAll(".item").forEach(card => {
+
+            let c = card.dataset.category;
+
+            if(category === "all" || c === category){
+                card.style.display = "";
+            }else{
+                card.style.display = "none";
+            }
+
+        });
+
+    }
+        document.addEventListener("DOMContentLoaded", function () {
+
+        document.getElementById("btnTop").onclick = function () {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        };
+
+        document.getElementById("btnBottom").onclick = function () {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        };
+
+    });
+
 </script>
