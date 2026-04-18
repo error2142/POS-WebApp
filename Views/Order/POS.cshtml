@@ -251,16 +251,45 @@
 
     // 🔥 綁定購物車
     function bindCartEvents() {
-        document.querySelectorAll('.btn-plus').forEach(btn=>{
-            btn.onclick = async ()=> await changeQty(btn.dataset.name,1);
-        });
-        document.querySelectorAll('.btn-minus').forEach(btn=>{
-            btn.onclick = async ()=> await changeQty(btn.dataset.name,-1);
-        });
-        document.querySelectorAll('.btn-remove').forEach(btn=>{
-            btn.onclick = async ()=> await removeItem(btn.dataset.name);
-        });
-    }
+
+    document.querySelectorAll('.btn-plus').forEach(btn=>{
+        btn.onclick = async ()=> await changeQty(btn.dataset.name,1);
+    });
+
+    document.querySelectorAll('.btn-minus').forEach(btn=>{
+        btn.onclick = async ()=> await changeQty(btn.dataset.name,-1);
+    });
+
+    document.querySelectorAll('.btn-remove').forEach(btn=>{
+        btn.onclick = async ()=> await removeItem(btn.dataset.name);
+    });
+
+    // 🔥 新增：直接輸入數量
+    document.querySelectorAll('.qty-input').forEach(input => {
+
+        input.onchange = async function () {
+
+            let qty = parseInt(this.value);
+
+            if (isNaN(qty) || qty < 1) {
+                qty = 1;
+                this.value = 1;
+            }
+
+            let fd = new FormData();
+            fd.append("name", this.dataset.name);
+            fd.append("quantity", qty);
+
+            await fetch('/Order/UpdateQuantity', {
+                method: 'POST',
+                body: fd
+            });
+
+            await reloadCart();
+        };
+
+    });
+}
 
     // 🔥 客戶搜尋提示（修復重點🔥）
     document.getElementById("customerInput").addEventListener("input", async function () {

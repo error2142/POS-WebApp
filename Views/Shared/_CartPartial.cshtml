@@ -29,7 +29,12 @@
                                 ➖
                             </button>
 
-                            <span class="fw-bold">@item.Quantity</span>
+                           <input type="number"
+       class="qty-input form-control form-control-sm text-center"
+       value="@item.Quantity"
+       min="1"
+       data-name="@item.Name"
+       style="width:70px;" />
 
                             <button type="button"
                                     class="btn btn-sm btn-outline-secondary btn-plus px-2"
