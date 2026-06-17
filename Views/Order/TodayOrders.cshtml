@@ -36,6 +36,7 @@
                         <tr>
                             <th>品項</th>
                             <th class="text-center">數量</th>
+                            <th class="text-end">金額</th>
                             </tr>
                     </thead>
                     <tbody>
@@ -44,14 +45,20 @@
                             <tr>
                                 <td>@item.ItemName</td>
                                 <td class="text-center">@item.Quantity</td>
+                                <td class="text-end">@item.Subtotal.ToString("N0")</td>
                             </tr>
                         }
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
-                            <td class="text-end fw-bold">總數量</td>
+                            <td class="text-end fw-bold">總計</td>
+
                             <td class="text-center fw-bold">
                                 @group.Sum(i => i.Quantity)
+                            </td>
+
+                            <td class="text-end fw-bold">
+                                @group.Sum(i => i.Subtotal).ToString("N0")
                             </td>
                         </tr>
                     </tfoot>

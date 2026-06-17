@@ -158,7 +158,7 @@ namespace WebApplication1.Controllers
         // ========================== 結帳 ==========================
 
         [HttpPost]
-        public IActionResult Checkout(string customer, string orderDate)
+        public IActionResult Checkout(string customer, string orderDate, string pickupLocation, string remark)
         {
             var cart = GetCart();
 
@@ -168,7 +168,7 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("POS");
             }
 
-            SaveOrder(cart, "收入", customer, orderDate);
+            SaveOrder(cart, "收入", customer, orderDate, pickupLocation, remark);
 
             ClearCartSession();
 
@@ -176,7 +176,7 @@ namespace WebApplication1.Controllers
             return RedirectToAction("POS");
         }
 
-        private void SaveOrder(List<CartItem> cart, string type, string customer, string orderDate)
+        private void SaveOrder(List<CartItem> cart, string type, string customer, string orderDate, string pickupLocation, string remark)
         {
             using var conn = new SqlConnection(connStr);
             conn.Open();
@@ -188,8 +188,8 @@ namespace WebApplication1.Controllers
             foreach (var item in cart)
             {
                 string sql = @"INSERT INTO POS_Order_History
-                (order_date, order_number, item_name, price, quantity, subtotal, IncomeType, customer_number, delivery_date, id)
-                VALUES (@date,@num,@name,@price,@qty,@sub,@type,@cust,@del,@id)";
+                (order_date, order_number, item_name, price, quantity, subtotal, IncomeType, customer_number, shipping_customer_number, delivery_date, id, commentary)
+                VALUES (@date,@num,@name,@price,@qty,@sub,@type,@cust,@shipcust,@del,@id,@commentary)";
 
                 using var cmd = new SqlCommand(sql, conn);
 
@@ -201,8 +201,10 @@ namespace WebApplication1.Controllers
                 cmd.Parameters.AddWithValue("@sub", item.Subtotal);
                 cmd.Parameters.AddWithValue("@type", type);
                 cmd.Parameters.AddWithValue("@cust", customer ?? "");
+                cmd.Parameters.AddWithValue("@shipcust", pickupLocation ?? "");
                 cmd.Parameters.AddWithValue("@del", orderDate ?? "");
                 cmd.Parameters.AddWithValue("@id", userId);
+                cmd.Parameters.AddWithValue("@commentary", string.IsNullOrWhiteSpace(remark) ? "" : remark);
 
                 cmd.ExecuteNonQuery();
             }

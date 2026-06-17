@@ -124,24 +124,34 @@
 
     <!-- 客戶 -->
     <div class="row g-2 mb-3">
+
+        <!-- 提貨地點 -->
+        <div class="col-md-4">
+            <select id="pickupLocation" class="form-select">
+                <option value="亞星觀音倉" selected>亞星觀音倉</option>
+                <option value="肉球內湖總公司">肉球內湖總公司</option>
+            </select>
+        </div>
+
+        <!-- 客戶 -->
         <div class="col-md-4 position-relative">
 
             <input type="text" id="customerInput" class="form-control" placeholder="客戶名稱">
 
-            <!-- 🔥 提示清單 -->
             <div id="customerList"
                  class="list-group position-absolute w-100"
                  style="z-index:1000; display:none;"></div>
 
-            <!-- 🔥 錯誤提示 -->
             <div id="customerError" class="text-danger mt-1" style="display:none;">
                 請先輸入客戶名稱
             </div>
         </div>
 
+        <!-- 日期 -->
         <div class="col-md-4">
             <input type="date" id="orderDate" class="form-control" value="@ViewBag.DefaultDate" />
         </div>
+
     </div>
 
        <div class="row">
@@ -204,9 +214,21 @@
                 @await Html.PartialAsync("_CartPartial", cart)
             </div>
 
+            <!-- 訂單備註 -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">訂單備註</label>
+                <textarea id="orderRemark"
+                          class="form-control"
+                          rows="3"
+                          maxlength="500"
+                          placeholder="例如：請先電話通知、管理室代收、下午送達"></textarea>
+            </div>
+
             <form asp-action="Checkout" method="post">
                 <input type="hidden" name="customer" id="hiddenCustomer" />
                 <input type="hidden" name="orderDate" id="hiddenDate" />
+                <input type="hidden" name="pickupLocation" id="hiddenPickupLocation" />
+                <input type="hidden" name="remark" id="hiddenRemark" />
 
                 <button type="submit" class="btn btn-primary w-100 mt-3">
                     結帳
@@ -380,6 +402,8 @@
 
         document.getElementById("hiddenCustomer").value = customerNumber;
         document.getElementById("hiddenDate").value = document.getElementById("orderDate").value;
+            document.getElementById("hiddenPickupLocation").value = document.getElementById("pickupLocation").value;
+                document.getElementById("hiddenRemark").value = document.getElementById("orderRemark").value;
     });
 
     });
